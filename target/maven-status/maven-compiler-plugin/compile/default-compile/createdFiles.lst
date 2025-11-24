@@ -1,0 +1,6 @@
+com\example\apppedidos\annotations\Auditable.class
+com\example\apppedidos\AppPedidosApplication.class
+com\example\apppedidos\service\OrderProcessingService.class
+com\example\apppedidos\aspects\OrderProcessingAspect.class
+com\example\apppedidos\orders\Order.class
+com\example\apppedidos\annotations\TimedProcess.class
