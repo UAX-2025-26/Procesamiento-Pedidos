@@ -1,13 +1,15 @@
 # Simulación concurrente de procesamiento de pedidos con AOP
 
-## Integrantes del grupo
+https://github.com/UAX-2025-26/Procesamiento-Pedidos.git
+
+## Miembros del grupo
 
 - Javier Yustres
 - Mario Blanco
 
-## Descripción general
+## Descripción
 
-Aplicación de consola basada en Spring Boot que simula el procesamiento concurrente de pedidos de una tienda online. Cada pedido se procesa en un hilo independiente usando `@Async`, mientras que la auditoría, el control de rendimiento y el manejo de errores se implementan mediante Programación Orientada a Aspectos (AOP).
+Aplicación de consola basada en Spring Boot que simula el procesamiento de pedidos de una tienda online. Cada pedido se procesa en un hilo independiente usando `@Async`, mientras que la auditoría, el control de rendimiento y el manejo de errores se implementan con Programación Orientada a Aspectos (AOP).
 
 ## Lógica de la solución
 
