@@ -7,34 +7,44 @@ https://github.com/UAX-2025-26/Procesamiento-Pedidos.git
 - Javier Yustres
 - Mario Blanco
 
-## Descripción
+## Contexto de la práctica
 
-Aplicación de consola basada en Spring Boot que simula el procesamiento de pedidos de una tienda online. Cada pedido se procesa en un hilo independiente usando `@Async`, mientras que la auditoría, el control de rendimiento y el manejo de errores se implementan con Programación Orientada a Aspectos (AOP).
+Trabajo para la asignatura de Programación Concurrente. El objetivo es mostrar cómo separar la lógica de negocio de las tareas transversales (auditoría, métricas y errores) usando Programación Orientada a Aspectos (AOP) en una aplicación Spring Boot que procesa pedidos en paralelo.
 
-## Lógica de la solución
+## Qué implementamos
 
-- `AppPedidosApplication`: clase principal de Spring Boot. Habilita `@EnableAsync` y define un `CommandLineRunner` que crea y lanza concurrentemente 10 pedidos usando el servicio `OrderProcessingService`. Resume la simulación al final (éxitos, errores y tiempo total).
-- `orders/Order`: clase sencilla de dominio que representa un pedido con `id`, `total` y `customerName`.
-- `annotations/Auditable`: anotación personalizada para marcar métodos cuyo inicio/fin deben ser auditados.
-- `annotations/TimedProcess`: anotación personalizada para marcar métodos cuyo tiempo de ejecución debe ser medido.
-- `service/OrderProcessingService`: servicio donde se implementa la lógica de negocio del procesamiento de un pedido. El método `processOrder` es `@Async`, `@Auditable` y `@TimedProcess`. Simula pasos como verificación de stock, pago y envío con `Thread.sleep()` y lanza fallos aleatorios.
-- `aspects/OrderProcessingAspect`: aspecto AOP que:
-  - Con `@Before` registra el inicio de cada proceso de pedido para métodos anotados con `@Auditable`.
-  - Con `@Around` (para `@TimedProcess`) calcula el tiempo de procesamiento de cada pedido y lo registra, tanto en éxito como en error.
-  - Con `@AfterThrowing` captura excepciones de métodos `@Auditable` y registra un mensaje de error por pedido.
+- Arranque de Spring Boot (`AppPedidosApplication`) con `@EnableAsync` y un `CommandLineRunner` que lanza 10 pedidos simultáneos.
+- Procesamiento asíncrono (`@Async`, `CompletableFuture`) que simula verificación de stock, pago y envío con pausas aleatorias.
+- AOP con anotaciones personalizadas (`@Auditable`, `@TimedProcess`) para auditar inicio/fin, medir tiempos y capturar excepciones sin ensuciar la lógica de negocio.
+- Dominio simple (`orders/Order`) con `id`, `total` y `customerName`.
+- Simulación de fallos aleatorios (pago rechazado, error de stock) para observar el manejo de errores y la trazabilidad.
+- Resumen final con pedidos completados, pedidos con error y el tiempo total de la simulación.
 
-## Cómo ejecutar
+## Tecnologías
 
-Desde la carpeta del proyecto:
+- Spring Boot 3
+- AOP con AspectJ (starter de Spring)
+- Ejecución asíncrona con `@Async` y `CompletableFuture`
+- Java 17
+
+## Cómo ejecutarlo
+
+Requisitos: Java 17 y Maven 3.x.
 
 ```cmd
 mvnw.cmd spring-boot:run
 ```
 
-La salida en consola mostrará:
+Si prefieres usar Maven instalado localmente:
 
-- Recepción de cada pedido.
-- Mensajes de auditoría de inicio y fin de proceso.
-- Tiempo de procesamiento de cada pedido (`[PERFORMANCE]`).
-- Errores simulados (`[ERROR]`) para algunos pedidos.
-- Resumen final con número de pedidos exitosos, fallidos y tiempo total aproximado.
+```cmd
+mvn spring-boot:run
+```
+
+## Qué verás en la consola
+
+- `[INFO]` al recibir cada pedido.
+- Auditoría de inicio y fin de proceso por pedido.
+- `[PERFORMANCE]` con el tiempo de ejecución, tanto en éxito como en fallo.
+- `[ERROR]` con el motivo del fallo cuando se simula una excepción.
+- Resumen final de la simulación.

@@ -45,7 +45,9 @@ public class AppPedidosApplication {
             );
 
             List<CompletableFuture<Boolean>> futures = orders.stream()
-                    .map(service::processOrder)
+                    .map(order -> service.processOrder(order)
+                            .thenApply(result -> Boolean.TRUE.equals(result))
+                            .exceptionally(ex -> false))
                     .toList();
 
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
@@ -62,4 +64,3 @@ public class AppPedidosApplication {
         };
     }
 }
-

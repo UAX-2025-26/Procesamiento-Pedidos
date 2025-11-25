@@ -17,13 +17,13 @@ public class OrderProcessingAspect {
     @Before("@annotation(auditable) && args(order,..)")
     public void auditStart(Auditable auditable, Object order) {
         Long id = extractOrderId(order);
-        System.out.printf("--- Auditoria: Inicio de proceso para Pedido %d ---%n", id);
+        System.out.printf("--- Auditoría: Inicio de proceso para Pedido %d ---%n", id);
     }
 
     @AfterReturning(pointcut = "@annotation(auditable) && args(order,..)")
     public void auditEnd(Auditable auditable, Object order) {
         Long id = extractOrderId(order);
-        System.out.printf("--- Auditoria: Fin de proceso para Pedido %d ---%n", id);
+        System.out.printf("--- Auditoría: Fin de proceso para Pedido %d ---%n", id);
     }
 
     @Around("@annotation(timedProcess) && args(order,..)")
@@ -56,4 +56,5 @@ public class OrderProcessingAspect {
             return -1L;
         }
     }
+
 }
