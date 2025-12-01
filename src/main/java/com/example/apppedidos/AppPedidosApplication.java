@@ -13,20 +13,25 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+// Aplicación principal de Spring Boot que lanza una simulación de procesamiento de pedidos
 @SpringBootApplication
-@EnableAsync
+@EnableAsync // Habilita el soporte de métodos @Async en la aplicación
 public class AppPedidosApplication {
 
     public static void main(String[] args) {
+        // Arranca el contexto de Spring y ejecuta los beans CommandLineRunner
         SpringApplication.run(AppPedidosApplication.class, args);
     }
 
+    // Bean que se ejecuta al iniciar la aplicación y simula la llegada y procesamiento de pedidos
     @Bean
     CommandLineRunner runSimulation(OrderProcessingService service) {
         return args -> {
             System.out.println("=== INICIO DE SIMULACIÓN DE PEDIDOS ===");
+            // Marca de tiempo de inicio para medir la duración total de la simulación
             Instant start = Instant.now();
 
+            // Lista de pedidos de ejemplo con id, importe total y nombre del cliente
             List<Order> orders = List.of(
                     new Order(1L, 120.50, "Ana López"),
                     new Order(2L, 89.99, "Carlos Gómez"),
@@ -40,21 +45,28 @@ public class AppPedidosApplication {
                     new Order(10L, 130.00, "Jorge Castillo")
             );
 
+            // Traza simple indicando que los pedidos han sido recibidos por el sistema
             orders.forEach(order ->
                     System.out.printf("[INFO] Pedido %d recibido para el cliente: %s%n", order.id(), order.customerName())
             );
 
+            // Lanza el procesamiento asíncrono de cada pedido y recoge los futuros
             List<CompletableFuture<Boolean>> futures = orders.stream()
                     .map(order -> service.processOrder(order)
+                            // Normaliza posibles nulls a false
                             .thenApply(result -> Boolean.TRUE.equals(result))
+                            // Si la llamada asíncrona lanza excepción, se considera fallo
                             .exceptionally(ex -> false))
                     .toList();
 
+            // Espera a que todos los procesos asíncronos se completen
             CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
+            // Cuenta cuántos pedidos se han completado correctamente
             long success = futures.stream().filter(CompletableFuture::join).count();
             long failed = orders.size() - success;
 
+            // Calcula el tiempo total invertido en procesar todos los pedidos
             long totalMs = Duration.between(start, Instant.now()).toMillis();
 
             System.out.println("=== PROCESAMIENTO FINALIZADO ===");
