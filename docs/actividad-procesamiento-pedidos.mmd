@@ -1,0 +1,44 @@
+flowchart TD
+    A[AppPedidosApplication<br/>main inicia] --> B[Crear varios objetos Order<br/>con IDs distintos]
+
+    B --> C{Mas pedidos<br/>por procesar?}
+    C -- Si --> D[Llamar processOrder Order]
+    D --> E[Anotacion @Async<br/>delegar a Thread Pool]
+
+    E --> F[Aspect: @Before Auditable<br/>Imprimir inicio auditoria]
+    F --> G[Aspect: @Around TimedProcess<br/>Iniciar cronometro]
+
+    G --> H[OrderProcessingService<br/>simulateStep Verificando stock]
+    H --> I[Thread.sleep 500-2000 ms]
+
+    I --> J[simulateStep<br/>Procesando pago]
+    J --> K[Thread.sleep 500-2000 ms]
+
+    K --> L[maybeFail<br/>Verificar random]
+
+    L --> M{Fallo simulado?<br/>probabilidad 40%}
+    M -- Si --> N[throw RuntimeException<br/>Pago rechazado o stock]
+    N --> O[Aspect: catch en @Around<br/>Registrar tiempo hasta fallo]
+    O --> P[Aspect: @AfterThrowing<br/>Log del error]
+    P --> Q[CompletableFuture<br/>completado excepcionalmente]
+
+    M -- No --> R[simulateStep<br/>Preparando envio]
+    R --> S[Thread.sleep 500-2000 ms]
+    S --> T[return CompletableFuture true]
+    T --> U[Aspect: @Around<br/>Registrar tiempo total]
+    U --> V[Aspect: @AfterReturning<br/>Fin auditoria exitosa]
+    V --> W[CompletableFuture<br/>completado exitosamente]
+
+    Q --> C
+    W --> C
+
+    C -- No --> X[Main thread espera o continua<br/>Todos los pedidos procesados]
+
+    subgraph Concurrencia
+        E1[Hilo 1: Order 1]
+        E2[Hilo 2: Order 2]
+        E3[Hilo 3: Order 3]
+    end
+
+    Note1[Múltiples pedidos se procesan<br/>concurrentemente en el pool]
+

@@ -1,0 +1,79 @@
+sequenceDiagram
+    autonumber
+    participant Main as AppPedidosApplication
+    participant OPS as OrderProcessingService
+    participant Aspect as OrderProcessingAspect
+    participant Order as Order
+    participant Pool as Thread Pool (Async)
+
+    Main->>OPS: processOrder(Order 1)
+    activate OPS
+    Note over OPS: @Async: delegado al pool
+
+    OPS->>Pool: Ejecutar en hilo separado
+    activate Pool
+
+    Pool->>Aspect: Before @Auditable
+    activate Aspect
+    Aspect->>Aspect: extractOrderId(order)
+    Aspect->>Aspect: Imprimir inicio auditoría
+    deactivate Aspect
+
+    Pool->>Aspect: Around @TimedProcess (inicio)
+    activate Aspect
+    Aspect->>Aspect: start = currentTimeMillis()
+    Aspect->>OPS: proceed() - ejecutar método
+    activate OPS
+
+    OPS->>OPS: simulateStep("Verificando stock")
+    Note over OPS: Thread.sleep(500-2000 ms)
+
+    OPS->>OPS: simulateStep("Procesando pago")
+    Note over OPS: Thread.sleep(500-2000 ms)
+
+    OPS->>OPS: maybeFail()
+
+    alt Pago exitoso (80%)
+        OPS->>OPS: simulateStep("Preparando envío")
+        Note over OPS: Thread.sleep(500-2000 ms)
+
+        OPS-->>Aspect: return CompletableFuture(true)
+        deactivate OPS
+
+        Aspect->>Aspect: time = currentTimeMillis() - start
+        Aspect->>Aspect: Imprimir tiempo de proceso
+        deactivate Aspect
+
+        Pool->>Aspect: AfterReturning @Auditable
+        activate Aspect
+        Aspect->>Aspect: Imprimir fin auditoría
+        deactivate Aspect
+
+    else Fallo simulado (20%)
+        OPS-->>Aspect: throw RuntimeException
+        deactivate OPS
+
+        Aspect->>Aspect: catch exception
+        Aspect->>Aspect: time = currentTimeMillis() - start
+        Aspect->>Aspect: Imprimir tiempo hasta fallo
+        Aspect-->>Pool: throw exception
+        deactivate Aspect
+
+        Pool->>Aspect: AfterThrowing @Auditable
+        activate Aspect
+        Aspect->>Aspect: Imprimir error en log
+        deactivate Aspect
+    end
+
+    Pool-->>OPS: CompletableFuture completado
+    deactivate Pool
+    OPS-->>Main: CompletableFuture
+    deactivate OPS
+
+    Note over Main: Main puede seguir procesando<br/>otros pedidos de forma concurrente
+
+    Main->>OPS: processOrder(Order 2)
+    Main->>OPS: processOrder(Order 3)
+
+    Note over Main,Pool: Múltiples pedidos se procesan<br/>en paralelo gracias a @Async
+

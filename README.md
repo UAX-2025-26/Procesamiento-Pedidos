@@ -11,6 +11,24 @@ https://github.com/UAX-2025-26/Procesamiento-Pedidos.git
 
 Trabajo para la asignatura de Programación Concurrente. El objetivo es mostrar cómo separar la lógica de negocio de las tareas transversales (auditoría, métricas y errores) usando Programación Orientada a Aspectos (AOP) en una aplicación Spring Boot que procesa pedidos en paralelo.
 
+## Estructura del proyecto
+
+```
+procesamiento-pedidos/
+├── README.md (este archivo)
+├── LICENSE
+├── docs/ (documentación técnica y diagramas)
+└── procesamiento-pedidos-app/ (módulo de la aplicación)
+    ├── pom.xml
+    ├── run.bat (script de ejecución)
+    └── src/
+        └── main/
+            └── java/
+                └── com/example/apppedidos/
+```
+
+El código de la aplicación está dentro del módulo `procesamiento-pedidos-app/`.
+
 ## Qué implementamos
 
 - Arranque de Spring Boot (`AppPedidosApplication`) con `@EnableAsync` y un `CommandLineRunner` que lanza 10 pedidos simultáneos.
@@ -31,13 +49,17 @@ Trabajo para la asignatura de Programación Concurrente. El objetivo es mostrar 
 
 Requisitos: Java 17 y Maven 3.x.
 
+### Opción 1: Usando el script run.bat
+
 ```cmd
-mvnw.cmd spring-boot:run
+cd procesamiento-pedidos-app
+run.bat
 ```
 
-Si prefieres usar Maven instalado localmente:
+### Opción 2: Usando Maven directamente
 
 ```cmd
+cd procesamiento-pedidos-app
 mvn spring-boot:run
 ```
 
@@ -48,3 +70,11 @@ mvn spring-boot:run
 - `[PERFORMANCE]` con el tiempo de ejecución, tanto en éxito como en fallo.
 - `[ERROR]` con el motivo del fallo cuando se simula una excepción.
 - Resumen final de la simulación.
+
+## Documentación
+
+Consulta la carpeta `docs/` para:
+- **EXPLICACION.md**: Descripción detallada de la arquitectura y componentes
+- **TEORIA_APLICADA.md**: Conceptos teóricos de programación concurrente y AOP
+- **Diagramas UML**: Clases, secuencia y actividad en formato Mermaid
+

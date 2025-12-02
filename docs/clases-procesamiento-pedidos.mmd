@@ -1,0 +1,66 @@
+classDiagram
+    %% Paquete orders
+    class Order {
+        +Long id
+        +double total
+        +String customerName
+    }
+
+    %% Paquete annotations
+    class Auditable {
+        <<annotation>>
+    }
+
+    class TimedProcess {
+        <<annotation>>
+    }
+
+    %% Paquete service
+    class OrderProcessingService {
+        -Random random
+        +processOrder(Order) CompletableFuture~Boolean~
+        -simulateStep(String) void
+        -maybeFail() void
+    }
+
+    OrderProcessingService --> Order : procesa
+    OrderProcessingService ..> Auditable : usa anotacion
+    OrderProcessingService ..> TimedProcess : usa anotacion
+
+    %% Paquete aspects
+    class OrderProcessingAspect {
+        +auditStart(Auditable, Object) void
+        +auditEnd(Auditable, Object) void
+        +measureTime(ProceedingJoinPoint, TimedProcess, Object) Object
+        +logError(Auditable, Object, Throwable) void
+        -extractOrderId(Object) Long
+    }
+
+    OrderProcessingAspect ..> Auditable : intercepta
+    OrderProcessingAspect ..> TimedProcess : intercepta
+    OrderProcessingAspect --> Order : extrae datos de
+
+    %% Aplicación principal
+    class AppPedidosApplication {
+        +main(String[]) void
+        +run(String...) void
+    }
+
+    AppPedidosApplication --> OrderProcessingService : usa para demo
+
+    %% Relaciones con Spring AOP y async
+    class ProceedingJoinPoint {
+        <<AspectJ>>
+    }
+
+    class CompletableFuture {
+        <<Java>>
+    }
+
+    OrderProcessingAspect ..> ProceedingJoinPoint : usa
+    OrderProcessingService ..> CompletableFuture : retorna
+
+    %% Anotaciones estándar
+    note for OrderProcessingService "Usa @Async para ejecución\nen hilos separados"
+    note for OrderProcessingAspect "Usa @Aspect para programación\norientada a aspectos (AOP)"
+
