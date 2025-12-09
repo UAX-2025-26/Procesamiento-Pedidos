@@ -10,7 +10,7 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 // Servicio que simula el procesamiento de pedidos paso a paso
-@Service
+@Service // Marca esta clase como un componente de servicio de Spring para que sea detectado automáticamente y registrado en el contexto de Spring
 public class OrderProcessingService {
 
     // Generador de números aleatorios para tiempos y fallos simulados
@@ -20,9 +20,9 @@ public class OrderProcessingService {
     // @Async: se ejecuta en un hilo separado gestionado por Spring
     // @Auditable: el aspecto registrará inicio/fin y errores del proceso
     // @TimedProcess: el aspecto medirá el tiempo total de procesamiento
-    @Async
-    @Auditable
-    @TimedProcess
+    @Async // Indica que este método se ejecutará de forma asíncrona en un hilo separado del pool de hilos configurado por Spring
+    @Auditable // Anotación personalizada que activa la auditoría mediante AOP (intercepta el método para registrar inicio, fin y errores)
+    @TimedProcess // Anotación personalizada que activa la medición de tiempo mediante AOP (intercepta el método para medir cuánto tarda en ejecutarse)
     public CompletableFuture<Boolean> processOrder(Order order) {
         // Simula la fase de verificación de stock
         simulateStep("Verificando stock");

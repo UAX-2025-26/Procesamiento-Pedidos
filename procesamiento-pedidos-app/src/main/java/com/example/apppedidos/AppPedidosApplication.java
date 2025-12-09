@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 // Aplicación principal de Spring Boot que lanza una simulación de procesamiento de pedidos
-@SpringBootApplication
-@EnableAsync // Habilita el soporte de métodos @Async en la aplicación
+@SpringBootApplication // Anotación combinada que habilita la autoconfiguración de Spring Boot, el escaneo de componentes y permite definir configuración adicional
+@EnableAsync // Habilita el soporte de métodos @Async en la aplicación - Permite que métodos anotados con @Async se ejecuten de forma asíncrona en hilos separados
 public class AppPedidosApplication {
 
     public static void main(String[] args) {
@@ -24,7 +24,7 @@ public class AppPedidosApplication {
     }
 
     // Bean que se ejecuta al iniciar la aplicación y simula la llegada y procesamiento de pedidos
-    @Bean
+    @Bean // Registra este método como un bean de Spring que será gestionado por el contenedor
     CommandLineRunner runSimulation(OrderProcessingService service) {
         return args -> {
             System.out.println("=== INICIO DE SIMULACIÓN DE PEDIDOS ===");

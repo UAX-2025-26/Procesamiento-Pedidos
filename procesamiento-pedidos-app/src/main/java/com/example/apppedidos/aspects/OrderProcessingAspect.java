@@ -24,7 +24,7 @@ public class OrderProcessingAspect {
     }
 
     // Advice que se ejecuta DESPUÉS de que un método @Auditable termine correctamente
-    @AfterReturning(pointcut = "@annotation(auditable) && args(order,..)")
+    @AfterReturning(pointcut = "@annotation(auditable) && args(order,..)") // Define un advice que se ejecuta después de que el método objetivo retorne exitosamente (sin lanzar excepciones)
     public void auditEnd(Auditable auditable, Object order) {
         Long id = extractOrderId(order);
         System.out.printf("--- Auditoría: Fin de proceso para Pedido %d ---%n", id);
@@ -32,7 +32,7 @@ public class OrderProcessingAspect {
 
     // Advice @Around que rodea la ejecución de métodos anotados con @TimedProcess
     // Se usa para medir el tiempo total de procesamiento, tanto en éxito como en fallo
-    @Around("@annotation(timedProcess) && args(order,..)")
+    @Around("@annotation(timedProcess) && args(order,..)") // Define un advice que rodea completamente la ejecución del método objetivo, permitiendo ejecutar código antes y después, o incluso decidir si invocar el método
     public Object measureTime(ProceedingJoinPoint pjp, TimedProcess timedProcess, Object order) throws Throwable {
         long start = System.currentTimeMillis();
         try {
@@ -52,7 +52,7 @@ public class OrderProcessingAspect {
     }
 
     // Advice que se ejecuta cuando un método @Auditable lanza una excepción
-    @AfterThrowing(pointcut = "@annotation(auditable) && args(order,..)", throwing = "ex")
+    @AfterThrowing(pointcut = "@annotation(auditable) && args(order,..)", throwing = "ex") // Define un advice que se ejecuta cuando el método objetivo lanza una excepción, permitiendo capturar y procesar el error
     public void logError(Auditable auditable, Object order, Throwable ex) {
         Long id = extractOrderId(order);
         System.out.printf("[ERROR] Pedido %d falló: %s%n", id, ex.getMessage());
